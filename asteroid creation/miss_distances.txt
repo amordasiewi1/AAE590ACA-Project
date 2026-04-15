@@ -1,0 +1,4 @@
+Leg 1 to Ast 5: Miss Distance = 0.039602 AU (5924400.66 km)
+Leg 2 to Ast 27: Miss Distance = 0.030856 AU (4616023.66 km)
+Leg 3 to Ast 35: Miss Distance = 0.083577 AU (12502935.65 km)
+Leg 4 to Ast 8: Miss Distance = 0.038525 AU (5763273.08 km)
