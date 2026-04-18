@@ -20,7 +20,7 @@ mission_duration_days = 3650;
 time_step_days = 30;
 departure_epochs = 0:time_step_days:mission_duration_days;
 num_epochs = length(departure_epochs);
-max_transfer_days = 500; % Maximum time allowed for a single leg
+max_transfer_days = 1200; % Maximum time allowed for a single leg
 t_cap_canonical = (max_transfer_days * 24 * 3600) / TU;
 
 % Pre-allocate Tensors
@@ -117,7 +117,7 @@ function [dv_total_kms, x_final, tof_days] = rk4_dynamic_rendezvous(x0, x_target
         dv = norm(v_sc - v_tgt);
         
         % Tolerance: ~0.001 AU (150,000 km) and ~1e-3 Canonical Velocity (~30 m/s)
-        if dr < 0.05 && dv < 0.005
+        if dr < 0.08 && dv < 0.05
             break;
         end
         

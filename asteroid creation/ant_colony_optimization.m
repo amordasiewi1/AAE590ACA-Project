@@ -1,5 +1,7 @@
 %% Ant Colony Optimization for Asteroid Tour (Knapsack Approach - Variable Hops)
-clc; clear; close all;
+clc; 
+clear; 
+close all;
 
 %% 1. Load Data & Set Constraints
 load('asteroid_3D_tensor.mat'); % dv_tensor_kms, departure_epochs, mining_values
@@ -38,15 +40,15 @@ clean_tof_tensor = tof_tensor_days;
 clean_tof_tensor(isnan(clean_tensor)) = NaN;
 
 %% 2. ACO Hyperparameters
-num_ants = 500;            
-num_iterations = 1000;     
+num_ants = 100;            
+num_iterations = 100;     
 alpha_aco = 1.0; % Renamed to avoid shadowing MATLAB's alpha() function             
-beta = 2.0;               
-rho = 0.1;                
+beta = 1.25;               
+rho = 0.25;                
 Q = 100;                  
 
 % Initialize Pheromone Matrix
-tau = ones(num_targets, num_targets); 
+tau = ones(num_targets, num_targets) * 100; % Start high to encourage early exploration
 
 % Global tracking
 global_best_fitness = 0;
@@ -105,7 +107,7 @@ for iter = 1:num_iterations
                     
                     % Heuristic: Reward high profit, low DV, and shorter TOF
                     leg_tof = clean_tof_tensor(current_ast, next_ast, abs_epoch_idx);
-                    eta = mining_values(next_ast) / (min_dv * (leg_tof/100) + 0.1);
+                    eta = mining_values(next_ast) / (min_dv + 0.1);
                     probabilities(next_ast) = (tau(current_ast, next_ast)^alpha_aco) * (eta^beta);
                 end
             end
@@ -203,7 +205,7 @@ set(gca, 'Color', 'k', 'XColor', 'none', 'YColor', 'none', 'ZColor', 'none');
 % --- SPEED CONFIGURATION ---
 % Adjust this to make the whole video faster or slower.
 % 0.5 means 1 frame for every 2 mission days.
-video_speed_factor = 0.75; 
+video_speed_factor = 0.1; 
 
 % Create Starfield
 num_stars = 500;
@@ -495,7 +497,8 @@ for leg = 1:actual_hops
     target_cart = [target_cart; leg_target_pos];
     
     % Update state for arrival
-    x_curr = X_out(end, :)';
+    x_curr = target_elem_base;
+    x_curr(6) = target_elem_base(6) + n_target * t_end_TU;
     
     % --- MINING / COASTING PHASE ---
     if leg < actual_hops
@@ -646,4 +649,3 @@ function E = Keplers(M, e)
         E = E - (E - e*sin(E) - M)/(1 - e*cos(E));
     end
 end
-%% Base
