@@ -25,8 +25,8 @@ num_epochs = length(departure_epochs);
 targets(:, 3:6) = deg2rad(targets(:, 3:6));
 
 % --- MISSION BUDGET CONSTRAINTS ---
-mission_dv_budget = 60;   % km/s total budget for the ENTIRE mission
-max_leg_dv = 25;          % km/s limit per single leg
+mission_dv_budget = 10;   % km/s total budget for the ENTIRE mission
+max_leg_dv = 5;          % km/s limit per single leg
 %transfer_days = 200; 
 min_stay_days = 20; 
 
