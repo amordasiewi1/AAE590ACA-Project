@@ -4,14 +4,14 @@ MU_dim = 132712440017.99; % [km^3/s^2] grav param of the sun
 AU_dim = 149597870.7;     % [km]
 
 %% NON-DIMENSIONALIZATION
-ndim.length = AU_dim;
-ndim.time = sqrt(ndim.length^3 / MU_dim);
-MU = (ndim.time^2/ndim.length^3) * MU_dim;
+LU = AU_dim;
+TU = sqrt(LU^3 / MU_dim);
+MU = (TU^2/LU^3) * MU_dim;
 
 %% TRANSFER PARAMETERS - FIXED TIME
 t0 = 0;
-tf_dim = 3 * (365*24*60*60); % [s]
-tf = (1/ndim.time) * tf_dim;
+tf_dim = 2 * (365*24*60*60); % [s]
+tf = (1/TU) * tf_dim;
 
 %% DEPARTURE PARAMETERS - EARTH
 % keplerian elements
@@ -27,8 +27,8 @@ ear.ta   = 0;
     ear.sma, ear.ecc, ear.incl, ear.raan, ear.argp, ear.ta, MU_dim);
 
 % non-dimensionalize
-ear.r0 = (1 / ndim.length) * ear.r0_dim;
-ear.v0 = (ndim.time / ndim.length) * ear.v0_dim;
+ear.r0 = (1 / LU) * ear.r0_dim;
+ear.v0 = (TU / LU) * ear.v0_dim;
 
 %% TARGET (ARRIVAL) PARAMETERS - ASTEROID
 % keplerian elements
@@ -48,8 +48,8 @@ ast.ta = eccentric_to_true(ast.ea,ast.ecc);
     ast.sma,ast.ecc,ast.incl,ast.raan,ast.argp,ast.ta,MU_dim);
 
 % non-dimensionalize
-ast.rf = (1 / ndim.length) * ast.rf_dim;
-ast.vf = (ndim.time / ndim.length) * ast.vf_dim;
+ast.rf = (1 / LU) * ast.rf_dim;
+ast.vf = (TU / LU) * ast.vf_dim;
 
 %% ODE PARAMS
 ode_tol = 1e-12;
@@ -108,12 +108,12 @@ fuel_cost = trapz(t, vecnorm(u,2,1));
 % 'propagate' earth/asteroid orbits
 M = 10000;
 theta = linspace(0,2*pi,M);
-ear.r = (1/ndim.length) * ear.sma * [sin(theta); cos(theta); zeros(1,M)];
+ear.r = (1/LU) * ear.sma * [sin(theta); cos(theta); zeros(1,M)];
 ast.r = zeros(3,M);
 for k = 1:M
     [ast.r(:,k), ~] = keplerian_to_cartesian(...
         ast.sma,ast.ecc,ast.incl,ast.raan,ast.argp,theta(k),MU_dim);
-    ast.r(:,k) = (1/ndim.length) * ast.r(:,k);
+    ast.r(:,k) = (1/LU) * ast.r(:,k);
 end
 
 % trajectory plot
@@ -132,4 +132,18 @@ plot3(r(1,:),r(2,:),r(3,:),'k',...
 xlabel('$$r_1$$ [AU]')
 ylabel('$$r_2$$ [AU]')
 zlabel('$$r_3$$ [AU]')
+
+% control history plot
+f2 = figure(2); hold on; grid on;
+plot(t,u(1,:),...
+    displayname='$$u_1$$')
+plot(t,u(2,:),...
+    displayname='$$u_2$$')
+plot(t,u(3,:),...
+    displayname='$$u_3$$')
+plot(t,vecnorm(u,2,1),...
+    displayname='$$||u||_2$$')
+xlabel('Time [ndim]')
+ylabel('$$u_i$$ [ndim]')
+legend
 
